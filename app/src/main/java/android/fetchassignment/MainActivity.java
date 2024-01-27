@@ -1,6 +1,8 @@
 package android.fetchassignment;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.view.View;
@@ -31,6 +33,10 @@ public class MainActivity extends AppCompatActivity {
     TextView results;
     String url = "https://fetch-hiring.s3.amazonaws.com/hiring.json";
 
+    RecyclerView recyclerView;
+    JsonAdapter jsonAdapter;
+    List<JSONObject> jObjectList = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,7 +44,12 @@ public class MainActivity extends AppCompatActivity {
 
         textView = findViewById(R.id.textView);
         read_button = findViewById(R.id.read_button);
-        results = findViewById(R.id.results);
+
+        recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        // Initialize the adapter with the empty list
+        jsonAdapter = new JsonAdapter(jObjectList);
+        recyclerView.setAdapter(jsonAdapter);
 
         read_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -46,6 +57,12 @@ public class MainActivity extends AppCompatActivity {
                 retrieveData();
             }
         });
+    }
+
+    public void updateRecyclerViewData(List<JSONObject> newList) {
+        jObjectList.clear();
+        jObjectList.addAll(newList);
+        jsonAdapter.notifyDataSetChanged();
     }
 
     public void retrieveData() {
@@ -59,10 +76,10 @@ public class MainActivity extends AppCompatActivity {
                             // Iterate the jsonArray
                             for (int i = 0; i < response.length(); i++) {
                                 JSONObject jsonObject = response.getJSONObject(i);
-                                String name = jsonObject.optString("name", null);
+                                String name = jsonObject.optString("name", "null");
 
                                 //If name is null, skip this json object
-                                if (name == null || name.trim().isEmpty()) {
+                                if (name == "null" || name.trim().isEmpty()) {
                                     continue;
                                 }
 
@@ -81,12 +98,20 @@ public class MainActivity extends AppCompatActivity {
                                     } else {
                                         String name1 = o1.optString("name");
                                         String name2 = o2.optString("name");
-                                        return name1.compareToIgnoreCase(name2);
+
+                                        String s1 = name1.substring(5, name1.length());
+                                        String s2 = name2.substring(5, name2.length());
+
+                                        int num1 = Integer.parseInt(s1);
+                                        int num2 = Integer.parseInt(s2);
+
+                                        return Integer.compare(num1, num2);
                                     }
                                 }
                             });
 
-                            //Update UI
+                            // Update the RecyclerView with the sorted list
+                            updateRecyclerViewData(jObjectList);
 
                         } catch (JSONException e) {
                             Toast.makeText(MainActivity.this, "Failed to fetch data", Toast.LENGTH_SHORT).show();
