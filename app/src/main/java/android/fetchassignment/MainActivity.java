@@ -30,7 +30,6 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
     TextView textView;
     Button read_button;
-    TextView results;
     String url = "https://fetch-hiring.s3.amazonaws.com/hiring.json";
 
     RecyclerView recyclerView;

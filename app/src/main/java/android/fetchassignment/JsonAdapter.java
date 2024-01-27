@@ -42,7 +42,7 @@ public class JsonAdapter extends RecyclerView.Adapter<JsonAdapter.ViewHolder> {
             JSONObject item = itemList.get(position);
             String name = item.optString("name", "Default Name");
             int listId = item.optInt("listId");
-            // Set the name to the text view
+            // Set the name and listId to the text view
             holder.textView.setText("listId: " + listId + ", Name: " + name);
         } catch (Exception e) {
             e.printStackTrace();
